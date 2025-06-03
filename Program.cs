@@ -1,32 +1,39 @@
-// Program.cs
-using FinanceManagerApi.Data;
-using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-using System.Net.Http; // Dodaj to
-using Projekt; // Dodaj to, aby NbpService był dostępny
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Projekt;
+using Projekt.Auth;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Dodaj DbContext do usług aplikacji
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString,
-        new MySqlServerVersion(new Version(9, 3, 0)),
-        mySqlOptions => mySqlOptions.EnableRetryOnFailure()
-    ));
-
-// Dodaj usługi Swagger/OpenAPI
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Dodaj HttpClient i NbpService do kontenera DI
-builder.Services.AddHttpClient<NbpService>(client =>
+// JWT
+builder.Services.AddSingleton<AuthService>();
+
+builder.Services.AddAuthentication(options =>
 {
-    client.BaseAddress = new Uri("http://api.nbp.pl/api/");
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
 });
 
-builder.Services.AddControllers();
+// NBP Service
+builder.Services.AddHttpClient<NbpService>();
 
 var app = builder.Build();
 
@@ -36,7 +43,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthorization();
+app.UseHttpsRedirection();
+
+app.UseAuthentication();    // Uwierzytelnianie JWT
+app.UseAuthorization();     // Autoryzacja [Authorize]
 
 app.MapControllers();
 
