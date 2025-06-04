@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Projekt.Services;
+using Projekt.Auth;
 
-namespace Projekt.Controllers
+namespace Projekt.Auth
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
@@ -14,23 +14,30 @@ namespace Projekt.Controllers
             _authService = authService;
         }
 
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginModel login)
+        // DTO do logowania
+        public class LoginRequest
         {
-            // UWAGA: tu tylko prosty login, bez bazy danych
-            if (login.Username == "admin" && login.Password == "admin123")
+            public string Username { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+        }
+
+        [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult Login([FromBody] LoginRequest request)
+        {
+            // Uproszczona weryfikacja hasła - tylko "admin"
+            if (request.Password != "admin")
             {
-                var token = _authService.GenerateJwtToken(login.Username);
-                return Ok(new { token });
+                return Unauthorized(new { message = "Nieprawidłowe hasło" });
             }
 
-            return Unauthorized("Niepoprawne dane logowania.");
-        }
-    }
+            var token = _authService.GenerateJwtToken(request.Username);
 
-    public class LoginModel
-    {
-        public required string Username { get; set; }
-        public required string Password { get; set; }
+            return Ok(new
+            {
+                token = token
+            });
+        }
     }
 }
