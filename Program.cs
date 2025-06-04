@@ -56,6 +56,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Serwowanie domyślnych plików (np. index.html)
+app.UseDefaultFiles();
+
+// Serwowanie statycznych plików z wwwroot
+app.UseStaticFiles();
+
 app.UseAuthentication();    // Uwierzytelnianie JWT
 app.UseAuthorization();     // Autoryzacja [Authorize]
 
