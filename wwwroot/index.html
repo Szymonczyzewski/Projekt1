@@ -4,46 +4,144 @@
     <meta charset="UTF-8" />
     <title>Projekt - Logowanie i Waluty</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
+      /* Reset i podstawy */
+      * {
+        box-sizing: border-box;
       }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px auto;
+        max-width: 600px;
+        background: #f9fafb;
+        color: #333;
+      }
+      h2,
+      h3 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
+
+      /* Formularz logowania */
       label {
         display: block;
-        margin-top: 10px;
+        margin-top: 15px;
+        font-weight: 600;
       }
       input {
-        padding: 5px;
-        width: 200px;
+        padding: 10px;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 5px;
+        border: 1.8px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
       }
+      input:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+      }
+
+      /* Przyciski */
       button {
-        margin-top: 10px;
-        padding: 5px 10px;
+        margin-top: 15px;
+        padding: 10px 20px;
+        background-color: #3498db;
+        border: none;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
       }
+      button:hover {
+        background-color: #2980b9;
+      }
+      button:active {
+        background-color: #1c5980;
+      }
+
+      /* Komunikaty */
       #message {
-        margin-top: 10px;
-        color: green;
+        margin-top: 15px;
+        color: #27ae60;
+        font-weight: 600;
       }
       #error {
-        margin-top: 10px;
-        color: red;
+        margin-top: 15px;
+        color: #e74c3c;
+        font-weight: 600;
       }
-      #tasks,
+
+      /* Sekcja po zalogowaniu */
+      #loggedSection {
+        margin-top: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      #loggedSection button {
+        margin-right: 10px;
+      }
+
+      /* Lista zadań */
+      #tasks ul {
+        margin-top: 15px;
+        padding-left: 20px;
+      }
+      #tasks li {
+        padding: 6px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      /* Tabela kursów */
       #exchangeRates {
-        margin-top: 20px;
+        margin-top: 25px;
       }
       #exchangeRates table {
         border-collapse: collapse;
-        width: 300px;
+        width: 100%;
+        max-width: 100%;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
       }
       #exchangeRates th,
       #exchangeRates td {
-        border: 1px solid #ddd;
-        padding: 8px;
+        border: none;
+        padding: 12px 15px;
         text-align: left;
       }
-      #exchangeRates th {
-        background-color: #f2f2f2;
+      #exchangeRates thead tr {
+        background-color: #3498db;
+        color: white;
+        font-weight: 600;
+      }
+      #exchangeRates tbody tr:nth-child(even) {
+        background-color: #f2f6fc;
+      }
+      #exchangeRates tbody tr:hover {
+        background-color: #dbeeff;
+      }
+
+      /* Responsywność */
+      @media (max-width: 480px) {
+        body {
+          margin: 10px;
+        }
+        button {
+          width: 100%;
+          margin-right: 0;
+          margin-top: 10px;
+        }
+        #loggedSection button {
+          display: block;
+          width: 100%;
+          margin-bottom: 10px;
+        }
       }
     </style>
   </head>
@@ -93,7 +191,6 @@
       const tasksDiv = document.getElementById("tasks");
       const exchangeRatesBody = document.getElementById("exchangeRatesBody");
 
-      // Sprawdź, czy mamy token w localStorage i ustaw UI
       function updateUIOnAuth() {
         const token = localStorage.getItem("token");
         if (token) {
@@ -116,7 +213,6 @@
         }
       }
 
-      // Logowanie
       loginBtn.addEventListener("click", async () => {
         const login = loginInput.value.trim();
         const password = passwordInput.value;
@@ -146,13 +242,11 @@
         }
       });
 
-      // Wylogowanie
       logoutBtn.addEventListener("click", () => {
         localStorage.removeItem("token");
         updateUIOnAuth();
       });
 
-      // Pobieranie zadań
       getTasksBtn.addEventListener("click", async () => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -184,7 +278,6 @@
         }
       });
 
-      // Pobieranie kursów walut z backendu i wyświetlanie
       async function fetchExchangeRates(token) {
         try {
           const res = await fetch("/ExchangeRates", {
@@ -222,7 +315,6 @@
         }
       }
 
-      // Inicjalizacja UI po załadowaniu
       updateUIOnAuth();
     </script>
   </body>
