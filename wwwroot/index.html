@@ -2,46 +2,228 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <title>Logowanie</title>
+    <title>Projekt - Logowanie i Waluty</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+      }
+      input {
+        padding: 5px;
+        width: 200px;
+      }
+      button {
+        margin-top: 10px;
+        padding: 5px 10px;
+      }
+      #message {
+        margin-top: 10px;
+        color: green;
+      }
+      #error {
+        margin-top: 10px;
+        color: red;
+      }
+      #tasks,
+      #exchangeRates {
+        margin-top: 20px;
+      }
+      #exchangeRates table {
+        border-collapse: collapse;
+        width: 300px;
+      }
+      #exchangeRates th,
+      #exchangeRates td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      #exchangeRates th {
+        background-color: #f2f2f2;
+      }
+    </style>
   </head>
   <body>
-    <h1>Logowanie</h1>
-    <form id="loginForm">
-      <input
-        type="text"
-        id="username"
-        placeholder="Nazwa użytkownika"
-        required
-      />
-      <input type="password" id="password" placeholder="Hasło" required />
-      <button type="submit">Zaloguj się</button>
-    </form>
-    <div id="result"></div>
+    <h2>Logowanie</h2>
+    <label for="login">Login</label>
+    <input type="text" id="login" />
+
+    <label for="password">Hasło</label>
+    <input type="password" id="password" />
+
+    <button id="loginBtn">Zaloguj</button>
+
+    <div id="message"></div>
+    <div id="error"></div>
+
+    <div id="loggedSection" style="display: none">
+      <button id="getTasksBtn">Pobierz zadania (GET /api/tasks)</button>
+      <button id="logoutBtn">Wyloguj</button>
+
+      <div id="tasks"></div>
+
+      <h3>Kursy walut (NBP)</h3>
+      <div id="exchangeRates">
+        <table>
+          <thead>
+            <tr>
+              <th>Waluta</th>
+              <th>Kod</th>
+              <th>Kurs (PLN)</th>
+            </tr>
+          </thead>
+          <tbody id="exchangeRatesBody"></tbody>
+        </table>
+      </div>
+    </div>
 
     <script>
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const username = document.getElementById("username").value;
-          const password = document.getElementById("password").value;
+      const loginInput = document.getElementById("login");
+      const passwordInput = document.getElementById("password");
+      const loginBtn = document.getElementById("loginBtn");
+      const messageDiv = document.getElementById("message");
+      const errorDiv = document.getElementById("error");
+      const loggedSection = document.getElementById("loggedSection");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const getTasksBtn = document.getElementById("getTasksBtn");
+      const tasksDiv = document.getElementById("tasks");
+      const exchangeRatesBody = document.getElementById("exchangeRatesBody");
 
-          const response = await fetch("/api/Auth/login", {
+      // Sprawdź, czy mamy token w localStorage i ustaw UI
+      function updateUIOnAuth() {
+        const token = localStorage.getItem("token");
+        if (token) {
+          loggedSection.style.display = "block";
+          loginBtn.style.display = "none";
+          loginInput.style.display = "none";
+          passwordInput.style.display = "none";
+          messageDiv.textContent = "Zalogowano pomyślnie!";
+          errorDiv.textContent = "";
+          fetchExchangeRates(token);
+        } else {
+          loggedSection.style.display = "none";
+          loginBtn.style.display = "inline-block";
+          loginInput.style.display = "inline-block";
+          passwordInput.style.display = "inline-block";
+          messageDiv.textContent = "";
+          errorDiv.textContent = "";
+          tasksDiv.innerHTML = "";
+          exchangeRatesBody.innerHTML = "";
+        }
+      }
+
+      // Logowanie
+      loginBtn.addEventListener("click", async () => {
+        const login = loginInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!login || !password) {
+          errorDiv.textContent = "Wprowadź login i hasło.";
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ username: login, password: password }),
           });
 
-          const resultDiv = document.getElementById("result");
-          if (response.ok) {
-            const data = await response.json();
-            resultDiv.innerText = "Token JWT: " + data.token;
-            // tutaj można zapisać token w localStorage jeśli chcesz
-          } else {
-            const err = await response.json();
-            resultDiv.innerText = "Błąd: " + err.message;
+          if (!res.ok) {
+            errorDiv.textContent = "Błąd logowania. Sprawdź dane.";
+            return;
           }
-        });
+
+          const data = await res.json();
+          localStorage.setItem("token", data.token);
+          updateUIOnAuth();
+        } catch (err) {
+          errorDiv.textContent = "Błąd połączenia z serwerem.";
+        }
+      });
+
+      // Wylogowanie
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        updateUIOnAuth();
+      });
+
+      // Pobieranie zadań
+      getTasksBtn.addEventListener("click", async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          errorDiv.textContent = "Musisz być zalogowany.";
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/tasks", {
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          if (!res.ok) {
+            errorDiv.textContent = "Błąd pobierania zadań.";
+            return;
+          }
+
+          const tasks = await res.json();
+          if (tasks.length === 0) {
+            tasksDiv.innerHTML = "<p>Brak zadań do wyświetlenia.</p>";
+          } else {
+            tasksDiv.innerHTML =
+              "<ul>" +
+              tasks.map((t) => `<li>${t.name}</li>`).join("") +
+              "</ul>";
+          }
+        } catch (err) {
+          errorDiv.textContent = "Błąd połączenia z serwerem.";
+        }
+      });
+
+      // Pobieranie kursów walut z backendu i wyświetlanie
+      async function fetchExchangeRates(token) {
+        try {
+          const res = await fetch("/ExchangeRates", {
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          if (!res.ok) {
+            exchangeRatesBody.innerHTML =
+              '<tr><td colspan="3">Błąd pobierania kursów walut.</td></tr>';
+            return;
+          }
+
+          const rates = await res.json();
+
+          if (rates.length === 0) {
+            exchangeRatesBody.innerHTML =
+              '<tr><td colspan="3">Brak danych o kursach.</td></tr>';
+            return;
+          }
+
+          exchangeRatesBody.innerHTML = rates
+            .map(
+              (rate) => `
+        <tr>
+          <td>${rate.currency}</td>
+          <td>${rate.code}</td>
+          <td>${rate.mid.toFixed(4)}</td>
+        </tr>
+      `
+            )
+            .join("");
+        } catch {
+          exchangeRatesBody.innerHTML =
+            '<tr><td colspan="3">Błąd połączenia z serwerem.</td></tr>';
+        }
+      }
+
+      // Inicjalizacja UI po załadowaniu
+      updateUIOnAuth();
     </script>
   </body>
 </html>

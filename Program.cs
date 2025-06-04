@@ -43,8 +43,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// NBP Service
-builder.Services.AddHttpClient<NbpService>();
+// Rejestracja serwisu NBP z bazowym adresem API
+builder.Services.AddHttpClient<NbpService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.nbp.pl/api/");
+});
 
 var app = builder.Build();
 
@@ -55,15 +58,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Serwowanie domyślnych plików (np. index.html)
 app.UseDefaultFiles();
-
-// Serwowanie statycznych plików z wwwroot
 app.UseStaticFiles();
 
-app.UseAuthentication();    // Uwierzytelnianie JWT
-app.UseAuthorization();     // Autoryzacja [Authorize]
+// 🔧 Brakowało tej linijki:
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
