@@ -43,4 +43,16 @@ public class NbpService
             return Enumerable.Empty<ExchangeRate>();
         }
     }
+
+    public async Task<decimal> GetExchangeRate(string currencyCode)
+        {
+            var rates = await GetCurrentExchangeRatesAsync();
+            var rate = rates.FirstOrDefault(r => r.Code.Equals(currencyCode, StringComparison.OrdinalIgnoreCase));
+
+            if (rate == null)
+                throw new ArgumentException($"Waluta {currencyCode} nie znaleziona.");
+
+            return rate.Mid;
+        }
+
 }
