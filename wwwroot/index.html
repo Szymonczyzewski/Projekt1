@@ -2,388 +2,567 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <title>Projekt - Logowanie i Waluty</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Panel z logowaniem, walutami, pieskiem i postami</title>
     <style>
-      * {
-        box-sizing: border-box;
-      }
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        margin: 20px auto;
-        max-width: 900px;
-        background: #f9fafb;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f0f2f5;
         color: #333;
+      }
+
+      .flex-center {
         display: flex;
-        gap: 20px;
         justify-content: center;
-      }
-
-      /* Lewy panel z komunikatem i wyloguj */
-      #leftPanel {
-        flex: 0 0 280px;
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
-        min-height: 140px;
-      }
-
-      #leftPanel #message {
-        color: #27ae60;
-        font-weight: 700;
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-      }
-
-      #logoutBtn {
-        padding: 10px 20px;
-        background-color: #e74c3c;
-        border: none;
-        color: white;
-        font-weight: 600;
-        font-size: 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      #logoutBtn:hover {
-        background-color: #c0392b;
-      }
-
-      /* Prawy panel z tabelkami kursów i pieska obok siebie */
-      #rightPanel {
-        flex: 1 1 580px;
-        display: flex;
-        gap: 20px;
-      }
-
-      /* Obie tabele w prawo, po 50% szerokości */
-      .tableContainer {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        flex: 1 1 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      /* Tabela kursów walut */
-      #exchangeRates table {
-        border-collapse: collapse;
-        width: 100%;
-        max-width: 100%;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        overflow: hidden;
-      }
-      #exchangeRates th,
-      #exchangeRates td {
-        border: none;
-        padding: 12px 15px;
-        text-align: left;
-      }
-      #exchangeRates thead tr {
-        background-color: #3498db;
-        color: white;
-        font-weight: 600;
-      }
-      #exchangeRates tbody tr:nth-child(even) {
-        background-color: #f2f6fc;
-      }
-      #exchangeRates tbody tr:hover {
-        background-color: #dbeeff;
-      }
-
-      /* Sekcja pieska */
-      #dogSection {
-        display: flex;
-        flex-direction: column;
         align-items: center;
       }
-      #dogSection button {
-        width: 100%;
-        padding: 10px;
-        background-color: #3498db;
-        border: none;
-        color: white;
-        font-weight: 600;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      #dogSection button:hover {
-        background-color: #2980b9;
-      }
-      #dogImage {
-        margin-top: 15px;
-        width: 100%;
-        border-radius: 8px;
-        display: none;
-        object-fit: contain;
-        max-height: 300px;
+
+      #authSection {
+        height: 100vh;
       }
 
-      /* Okno logowania mniejsze */
-      #authSection {
-        flex: 0 0 280px;
+      #authSection table {
+        border-collapse: collapse;
         background: white;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
       }
-      #authSection label {
-        margin-top: 12px;
-        font-weight: 600;
+
+      #authSection td {
+        padding: 8px 12px;
       }
-      #authSection input {
-        margin-top: 6px;
-        padding: 10px;
-        border: 1.8px solid #ccc;
-        border-radius: 6px;
-        font-size: 1rem;
-        transition: border-color 0.3s ease;
+
+      input[type="text"],
+      input[type="password"] {
+        width: 200px;
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
       }
-      #authSection input:focus {
-        border-color: #3498db;
-        outline: none;
-        box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
-      }
-      #authSection button {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #3498db;
+
+      button {
+        padding: 8px 14px;
+        font-size: 14px;
         border: none;
+        border-radius: 5px;
+        background-color: #2c7;
         color: white;
-        font-weight: 600;
-        font-size: 1rem;
-        border-radius: 6px;
         cursor: pointer;
         transition: background-color 0.3s ease;
       }
-      #authSection button:hover {
-        background-color: #2980b9;
+      button:hover:not(.logout-btn) {
+        background-color: #1a5;
       }
 
-      /* Komunikaty logowania */
-      #authMessage {
-        margin-top: 10px;
-        color: #27ae60;
-        font-weight: 600;
+      button.logout-btn {
+        background-color: #d9534f;
+        margin-left: auto;
       }
-      #authError {
-        margin-top: 10px;
-        color: #e74c3c;
-        font-weight: 600;
+      button.logout-btn:hover {
+        background-color: #b52b27;
       }
 
-      /* Ukrywanie elementów */
-      #authSection.hidden,
-      #leftPanel.hidden,
-      #rightPanel.hidden {
+      .hidden {
         display: none;
       }
 
-      /* Responsywność */
-      @media (max-width: 900px) {
-        body {
-          flex-direction: column;
-          max-width: 600px;
-          margin: 20px auto;
-        }
-        #leftPanel,
-        #rightPanel {
-          width: 100%;
-          max-width: 100%;
-          flex: none;
-          margin-bottom: 20px;
-        }
-        #rightPanel {
-          flex-direction: column;
-        }
-        .tableContainer {
-          max-width: 100%;
-          margin-bottom: 20px;
-          flex: none;
-        }
+      #mainContent {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      #topPanels {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+        align-items: flex-start;
+      }
+
+      #exchangeRatesContainer,
+      #dogSection {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        flex: 1;
+      }
+
+      #exchangeRatesContainer h2,
+      #dogSection h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-weight: 700;
+      }
+
+      #exchangeRatesContainer table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #exchangeRatesContainer th,
+      #exchangeRatesContainer td {
+        border: 1px solid #ccc;
+        padding: 8px 10px;
+        text-align: center;
+      }
+
+      #exchangeRatesContainer th {
+        background-color: #2c7;
+        color: white;
+      }
+
+      #dogSection button {
+        margin-bottom: 15px;
+        width: 100%;
+      }
+
+      #dogImage {
+        width: 100%;
+        border-radius: 10px;
+        max-height: 250px;
+        object-fit: contain;
+      }
+
+      #postsContainer {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      #postsContainer h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+
+      #postsControls {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      #postsControls input[type="text"] {
+        flex: 1 1 200px;
+      }
+
+      #postsTable {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #postsTable th,
+      #postsTable td {
+        border: 1px solid #ccc;
+        padding: 8px 10px;
+        text-align: left;
+      }
+
+      #postsTable th {
+        background-color: #2c7;
+        color: white;
+      }
+
+      #postsTable td button {
+        margin-right: 6px;
+        background-color: #28a745;
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 3px;
+      }
+      #postsTable td button.delete-btn {
+        background-color: #dc3545;
+      }
+      #postsTable td button:hover {
+        filter: brightness(0.85);
+      }
+
+      /* Layout przycisku wyloguj na górze z prawej */
+      #headerBar {
+        display: flex;
+        justify-content: flex-end;
+        background-color: #f44336;
+        padding: 10px 20px;
+        color: white;
+        font-weight: 700;
+        align-items: center;
       }
     </style>
   </head>
   <body>
-    <div id="authSection">
-      <h2>Logowanie</h2>
-      <label for="login">Login</label>
-      <input type="text" id="login" />
-
-      <label for="password">Hasło</label>
-      <input type="password" id="password" />
-
-      <button id="loginBtn">Zaloguj</button>
-
-      <div id="authMessage"></div>
-      <div id="authError"></div>
-    </div>
-
-    <div id="leftPanel" class="hidden">
-      <p id="message">Zalogowano pomyślnie!</p>
-      <button id="logoutBtn">Wyloguj</button>
-    </div>
-
-    <div id="rightPanel" class="hidden">
-      <div class="tableContainer" id="exchangeRates">
-        <h3>Kursy walut (NBP)</h3>
+    <!-- Panel logowania -->
+    <div id="authSection" class="flex-center">
+      <form id="loginForm">
         <table>
-          <thead>
-            <tr>
-              <th>Waluta</th>
-              <th>Kod</th>
-              <th>Kurs (PLN)</th>
-            </tr>
-          </thead>
-          <tbody id="exchangeRatesBody"></tbody>
+          <tr>
+            <td><label for="username">Nazwa użytkownika:</label></td>
+            <td><input type="text" id="username" required /></td>
+          </tr>
+          <tr>
+            <td><label for="password">Hasło:</label></td>
+            <td><input type="password" id="password" required /></td>
+          </tr>
+          <tr>
+            <td colspan="2" style="text-align: center">
+              <button type="submit">Zaloguj</button>
+            </td>
+          </tr>
         </table>
+      </form>
+    </div>
+
+    <!-- Główna zawartość - ukryta do zalogowania -->
+    <div id="mainContent" class="hidden">
+      <!-- Pasek wyloguj -->
+      <div id="headerBar">
+        <button id="logoutBtn" class="logout-btn">Wyloguj</button>
       </div>
 
-      <div class="tableContainer" id="dogSection">
-        <h3>Obrazek pieska</h3>
-        <button id="getDogBtn">Pobierz obrazek pieska</button>
-        <img id="dogImage" alt="Obrazek pieska" />
+      <div id="topPanels">
+        <!-- Kursy walut -->
+        <div id="exchangeRatesContainer">
+          <h2>Kursy walut</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Waluta</th>
+                <th>Kurs (PLN)</th>
+              </tr>
+            </thead>
+            <tbody id="exchangeRatesBody">
+              <!-- dynamicznie wypełniane -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Piesek -->
+        <div id="dogSection">
+          <h2>Losowy piesek</h2>
+          <button id="getDogBtn">Pobierz obrazek pieska</button>
+          <img id="dogImage" alt="Losowy piesek" style="display: none" />
+        </div>
+      </div>
+
+      <!-- Posty JSONPlaceholder -->
+      <div id="postsContainer">
+        <h3>Posty JSONPlaceholder</h3>
+
+        <div id="postsControls">
+          <input
+            type="text"
+            id="newPostTitle"
+            placeholder="Tytuł nowego posta"
+          />
+          <input
+            type="text"
+            id="newPostBody"
+            placeholder="Treść nowego posta"
+          />
+          <button id="addPostBtn">Dodaj post</button>
+        </div>
+
+        <table id="postsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tytuł</th>
+              <th>Treść</th>
+              <th>Akcje</th>
+            </tr>
+          </thead>
+          <tbody id="postsBody">
+            <!-- wypełniane dynamicznie -->
+          </tbody>
+        </table>
       </div>
     </div>
 
     <script>
-      const loginInput = document.getElementById("login");
-      const passwordInput = document.getElementById("password");
-      const loginBtn = document.getElementById("loginBtn");
-      const authMessage = document.getElementById("authMessage");
-      const authError = document.getElementById("authError");
-
       const authSection = document.getElementById("authSection");
-      const leftPanel = document.getElementById("leftPanel");
-      const rightPanel = document.getElementById("rightPanel");
-
-      const message = document.getElementById("message");
+      const mainContent = document.getElementById("mainContent");
+      const loginForm = document.getElementById("loginForm");
       const logoutBtn = document.getElementById("logoutBtn");
 
-      const exchangeRatesBody = document.getElementById("exchangeRatesBody");
-      const getDogBtn = document.getElementById("getDogBtn");
-      const dogImage = document.getElementById("dogImage");
+      // Waluty do wyświetlenia
+      const currencies = ["USD", "EUR", "GBP", "CHF", "JPY", "CZK"];
 
-      function updateUIOnAuth() {
-        const token = localStorage.getItem("token");
-        if (token) {
-          // Pokaż lewe i prawe panele
-          leftPanel.classList.remove("hidden");
-          rightPanel.classList.remove("hidden");
-          authSection.classList.add("hidden");
-
-          authMessage.textContent = "";
-          authError.textContent = "";
-          message.textContent = "Zalogowano pomyślnie!";
-          dogImage.style.display = "none";
-          fetchExchangeRates();
-        } else {
-          leftPanel.classList.add("hidden");
-          rightPanel.classList.add("hidden");
-          authSection.classList.remove("hidden");
-
-          authMessage.textContent = "";
-          authError.textContent = "";
-          message.textContent = "";
-          dogImage.style.display = "none";
-          exchangeRatesBody.innerHTML = "";
+      // Po zalogowaniu pokazujemy sekcje, po wylogowaniu chowamy
+      function login(username, password) {
+        // Akceptujemy dowolny username, ale hasło musi być "admin"
+        if (password !== "admin") {
+          alert("Niepoprawna nazwa użytkownika lub hasło.");
+          return false;
         }
+        // Udane logowanie
+        authSection.style.display = "none";
+        mainContent.classList.remove("hidden");
+        loadExchangeRates();
+        loadPosts();
+        return true;
       }
 
-      loginBtn.addEventListener("click", async () => {
-        const login = loginInput.value.trim();
-        const password = passwordInput.value;
+      function logout() {
+        mainContent.classList.add("hidden");
+        authSection.style.display = "flex";
+        clearPostsTable();
+        clearExchangeRates();
+        clearDogImage();
+      }
 
-        if (!login || !password) {
-          authError.textContent = "Wprowadź login i hasło.";
-          return;
-        }
-
-        try {
-          const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: login, password: password }),
-          });
-
-          if (!res.ok) {
-            authError.textContent = "Błąd logowania. Sprawdź dane.";
-            return;
-          }
-
-          const data = await res.json();
-          localStorage.setItem("token", data.token);
-          updateUIOnAuth();
-        } catch (err) {
-          authError.textContent = "Błąd połączenia z serwerem.";
-        }
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+        login(username, password);
       });
 
       logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("token");
-        updateUIOnAuth();
+        logout();
       });
 
-      getDogBtn.addEventListener("click", async () => {
-        try {
-          const res = await fetch("https://dog.ceo/api/breeds/image/random");
-          if (!res.ok) {
-            throw new Error("Nie udało się pobrać obrazka pieska.");
-          }
-          const data = await res.json();
-          dogImage.src = data.message;
-          dogImage.style.display = "block";
-          authError.textContent = "";
-        } catch (err) {
-          authError.textContent = "Błąd połączenia z serwerem (piesek).";
-        }
-      });
+      // --- Kursy walut ---
 
-      async function fetchExchangeRates() {
+      async function loadExchangeRates() {
         try {
           const res = await fetch(
             "https://api.nbp.pl/api/exchangerates/tables/A?format=json"
           );
-          if (!res.ok) {
-            throw new Error("Nie udało się pobrać kursów.");
-          }
+          if (!res.ok) throw new Error("Błąd pobierania kursów walut");
           const data = await res.json();
-          const rates = data[0].rates;
-
-          // Pokazujemy tylko 5 walut
-          const wantedCodes = ["USD", "EUR", "GBP", "JPY", "CZK"];
-          const filteredRates = rates.filter((r) =>
-            wantedCodes.includes(r.code)
+          const rates = data[0].rates.filter((r) =>
+            currencies.includes(r.code)
           );
-
-          exchangeRatesBody.innerHTML = filteredRates
-            .map(
-              (r) =>
-                `<tr><td>${r.currency}</td><td>${
-                  r.code
-                }</td><td>${r.mid.toFixed(4)}</td></tr>`
-            )
-            .join("");
+          displayExchangeRates(rates);
         } catch (err) {
-          exchangeRatesBody.innerHTML =
-            "<tr><td colspan='3'>Błąd pobierania kursów</td></tr>";
+          alert("Nie udało się pobrać kursów walut.");
+          console.error(err);
         }
       }
 
-      // Po załadowaniu strony sprawdzamy, czy już jesteśmy zalogowani
-      updateUIOnAuth();
+      function displayExchangeRates(rates) {
+        const tbody = document.getElementById("exchangeRatesBody");
+        tbody.innerHTML = "";
+        for (const rate of rates) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${rate.code}</td><td>${rate.mid.toFixed(4)}</td>`;
+          tbody.appendChild(tr);
+        }
+      }
+
+      function clearExchangeRates() {
+        document.getElementById("exchangeRatesBody").innerHTML = "";
+      }
+
+      // --- Piesek ---
+
+      const getDogBtn = document.getElementById("getDogBtn");
+      const dogImage = document.getElementById("dogImage");
+
+      getDogBtn.addEventListener("click", async () => {
+        dogImage.style.display = "none";
+        dogImage.src = "";
+        try {
+          const res = await fetch("https://dog.ceo/api/breeds/image/random");
+          if (!res.ok) throw new Error("Błąd pobierania obrazka pieska");
+          const data = await res.json();
+          dogImage.src = data.message;
+          dogImage.style.display = "block";
+        } catch (err) {
+          alert("Nie udało się pobrać obrazka pieska.");
+          console.error(err);
+        }
+      });
+
+      function clearDogImage() {
+        dogImage.style.display = "none";
+        dogImage.src = "";
+      }
+
+      // --- Posty JSONPlaceholder ---
+
+      const postsBody = document.getElementById("postsBody");
+      const addPostBtn = document.getElementById("addPostBtn");
+      const newPostTitle = document.getElementById("newPostTitle");
+      const newPostBody = document.getElementById("newPostBody");
+
+      let posts = [];
+
+      async function loadPosts() {
+        try {
+          const res = await fetch(
+            "https://jsonplaceholder.typicode.com/posts?_limit=10"
+          );
+          if (!res.ok) throw new Error("Błąd pobierania postów");
+          posts = await res.json();
+          displayPosts();
+        } catch (err) {
+          alert("Nie udało się pobrać postów.");
+          console.error(err);
+        }
+      }
+
+      function displayPosts() {
+        postsBody.innerHTML = "";
+        for (const post of posts) {
+          const tr = document.createElement("tr");
+          tr.dataset.id = post.id;
+          tr.innerHTML = `
+        <td>${post.id}</td>
+        <td>${escapeHtml(post.title)}</td>
+        <td>${escapeHtml(post.body)}</td>
+        <td>
+          <button class="edit-btn">Edytuj</button>
+          <button class="delete-btn">Usuń</button>
+        </td>`;
+          postsBody.appendChild(tr);
+        }
+      }
+
+      function clearPostsTable() {
+        postsBody.innerHTML = "";
+        posts = [];
+        newPostTitle.value = "";
+        newPostBody.value = "";
+      }
+
+      function escapeHtml(text) {
+        return text.replace(/[&<>"']/g, (m) => {
+          switch (m) {
+            case "&":
+              return "&amp;";
+            case "<":
+              return "&lt;";
+            case ">":
+              return "&gt;";
+            case '"':
+              return "&quot;";
+            case "'":
+              return "&#39;";
+          }
+        });
+      }
+
+      addPostBtn.addEventListener("click", async () => {
+        const title = newPostTitle.value.trim();
+        const body = newPostBody.value.trim();
+        if (!title || !body) {
+          alert("Proszę wprowadzić tytuł i treść posta.");
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            "https://jsonplaceholder.typicode.com/posts",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ title, body, userId: 1 }),
+            }
+          );
+          if (!res.ok) throw new Error("Błąd dodawania posta");
+          const newPost = await res.json();
+          // API nie zapisuje, więc symulujemy dodanie:
+          newPost.id = posts.length ? posts[posts.length - 1].id + 1 : 101;
+          posts.push(newPost);
+          displayPosts();
+          newPostTitle.value = "";
+          newPostBody.value = "";
+        } catch (err) {
+          alert("Nie udało się dodać posta.");
+          console.error(err);
+        }
+      });
+
+      postsBody.addEventListener("click", async (e) => {
+        const target = e.target;
+        if (target.classList.contains("delete-btn")) {
+          const tr = target.closest("tr");
+          const id = tr.dataset.id;
+          if (!confirm(`Na pewno chcesz usunąć post o ID ${id}?`)) return;
+
+          try {
+            const res = await fetch(
+              `https://jsonplaceholder.typicode.com/posts/${id}`,
+              {
+                method: "DELETE",
+              }
+            );
+            if (res.ok) {
+              posts = posts.filter((p) => p.id != id);
+              displayPosts();
+            } else {
+              throw new Error("Błąd usuwania");
+            }
+          } catch (err) {
+            alert("Nie udało się usunąć posta.");
+            console.error(err);
+          }
+        } else if (target.classList.contains("edit-btn")) {
+          const tr = target.closest("tr");
+          const id = tr.dataset.id;
+          const post = posts.find((p) => p.id == id);
+          if (!post) return alert("Nie znaleziono posta.");
+
+          // zamień wiersz na edytowalny formularz inline
+          tr.innerHTML = `
+        <td>${post.id}</td>
+        <td><input type="text" class="edit-title" value="${escapeHtml(
+          post.title
+        )}" style="width: 100%" /></td>
+        <td><input type="text" class="edit-body" value="${escapeHtml(
+          post.body
+        )}" style="width: 100%" /></td>
+        <td>
+          <button class="save-btn">Zapisz</button>
+          <button class="cancel-btn">Anuluj</button>
+        </td>`;
+        } else if (target.classList.contains("save-btn")) {
+          const tr = target.closest("tr");
+          const id = tr.dataset.id;
+          const newTitle = tr.querySelector(".edit-title").value.trim();
+          const newBody = tr.querySelector(".edit-body").value.trim();
+          if (!newTitle || !newBody) {
+            alert("Tytuł i treść nie mogą być puste.");
+            return;
+          }
+
+          try {
+            const res = await fetch(
+              `https://jsonplaceholder.typicode.com/posts/${id}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  title: newTitle,
+                  body: newBody,
+                  userId: 1,
+                  id: Number(id),
+                }),
+              }
+            );
+            if (!res.ok) throw new Error("Błąd zapisu");
+            const updatedPost = await res.json();
+            // Aktualizacja lokalna
+            const index = posts.findIndex((p) => p.id == id);
+            if (index >= 0) {
+              posts[index].title = updatedPost.title;
+              posts[index].body = updatedPost.body;
+              displayPosts();
+            }
+          } catch (err) {
+            alert("Nie udało się zapisać posta.");
+            console.error(err);
+          }
+        } else if (target.classList.contains("cancel-btn")) {
+          displayPosts();
+        }
+      });
     </script>
   </body>
 </html>

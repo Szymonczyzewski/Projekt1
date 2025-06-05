@@ -4,7 +4,7 @@ using Microsoft.OpenApi.Models;
 using Projekt;
 using Projekt.Auth;
 using Projekt.Middleware;
-using Projekt.Services; // Dodane dla DogService
+using Projekt.Services; // Dodane dla DogService i innych
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -86,6 +86,9 @@ builder.Services.AddHttpClient<DogService>(client =>
 {
     client.BaseAddress = new Uri("https://dog.ceo/api/");
 });
+
+// **DODANE: Rejestracja JsonPlaceholderService i HttpClient**
+builder.Services.AddHttpClient<Projekt.Services.IJsonPlaceholderService, Projekt.Services.JsonPlaceholderService>();
 
 var app = builder.Build();
 
