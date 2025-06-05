@@ -4,50 +4,44 @@
     <meta charset="UTF-8" />
     <title>Projekt - Logowanie i Waluty</title>
     <style>
-      /* Reset i podstawy */
       * {
         box-sizing: border-box;
       }
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         margin: 20px auto;
-        max-width: 600px;
+        max-width: 900px;
         background: #f9fafb;
         color: #333;
-      }
-      h2,
-      h3 {
-        color: #2c3e50;
-        margin-bottom: 15px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
       }
 
-      /* Formularz logowania */
-      label {
-        display: block;
-        margin-top: 15px;
-        font-weight: 600;
-      }
-      input {
-        padding: 10px;
-        width: 100%;
-        max-width: 100%;
-        margin-top: 5px;
-        border: 1.8px solid #ccc;
-        border-radius: 6px;
-        font-size: 1rem;
-        transition: border-color 0.3s ease;
-      }
-      input:focus {
-        border-color: #3498db;
-        outline: none;
-        box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+      /* Lewy panel z komunikatem i wyloguj */
+      #leftPanel {
+        flex: 0 0 280px;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        min-height: 140px;
       }
 
-      /* Przyciski */
-      button {
-        margin-top: 15px;
+      #leftPanel #message {
+        color: #27ae60;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+      }
+
+      #logoutBtn {
         padding: 10px 20px;
-        background-color: #3498db;
+        background-color: #e74c3c;
         border: none;
         color: white;
         font-weight: 600;
@@ -56,51 +50,30 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
       }
-      button:hover {
-        background-color: #2980b9;
-      }
-      button:active {
-        background-color: #1c5980;
+      #logoutBtn:hover {
+        background-color: #c0392b;
       }
 
-      /* Komunikaty */
-      #message {
-        margin-top: 15px;
-        color: #27ae60;
-        font-weight: 600;
-      }
-      #error {
-        margin-top: 15px;
-        color: #e74c3c;
-        font-weight: 600;
+      /* Prawy panel z tabelkami kursów i pieska obok siebie */
+      #rightPanel {
+        flex: 1 1 580px;
+        display: flex;
+        gap: 20px;
       }
 
-      /* Sekcja po zalogowaniu */
-      #loggedSection {
-        margin-top: 30px;
-        padding: 20px;
+      /* Obie tabele w prawo, po 50% szerokości */
+      .tableContainer {
         background: white;
+        padding: 20px;
         border-radius: 8px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      }
-      #loggedSection button {
-        margin-right: 10px;
-      }
-
-      /* Lista zadań */
-      #tasks ul {
-        margin-top: 15px;
-        padding-left: 20px;
-      }
-      #tasks li {
-        padding: 6px 0;
-        border-bottom: 1px solid #eee;
+        flex: 1 1 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
       }
 
-      /* Tabela kursów */
-      #exchangeRates {
-        margin-top: 25px;
-      }
+      /* Tabela kursów walut */
       #exchangeRates table {
         border-collapse: collapse;
         width: 100%;
@@ -127,45 +100,145 @@
         background-color: #dbeeff;
       }
 
+      /* Sekcja pieska */
+      #dogSection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #dogSection button {
+        width: 100%;
+        padding: 10px;
+        background-color: #3498db;
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      #dogSection button:hover {
+        background-color: #2980b9;
+      }
+      #dogImage {
+        margin-top: 15px;
+        width: 100%;
+        border-radius: 8px;
+        display: none;
+        object-fit: contain;
+        max-height: 300px;
+      }
+
+      /* Okno logowania mniejsze */
+      #authSection {
+        flex: 0 0 280px;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+      }
+      #authSection label {
+        margin-top: 12px;
+        font-weight: 600;
+      }
+      #authSection input {
+        margin-top: 6px;
+        padding: 10px;
+        border: 1.8px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+      }
+      #authSection input:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+      }
+      #authSection button {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #3498db;
+        border: none;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      #authSection button:hover {
+        background-color: #2980b9;
+      }
+
+      /* Komunikaty logowania */
+      #authMessage {
+        margin-top: 10px;
+        color: #27ae60;
+        font-weight: 600;
+      }
+      #authError {
+        margin-top: 10px;
+        color: #e74c3c;
+        font-weight: 600;
+      }
+
+      /* Ukrywanie elementów */
+      #authSection.hidden,
+      #leftPanel.hidden,
+      #rightPanel.hidden {
+        display: none;
+      }
+
       /* Responsywność */
-      @media (max-width: 480px) {
+      @media (max-width: 900px) {
         body {
-          margin: 10px;
+          flex-direction: column;
+          max-width: 600px;
+          margin: 20px auto;
         }
-        button {
+        #leftPanel,
+        #rightPanel {
           width: 100%;
-          margin-right: 0;
-          margin-top: 10px;
+          max-width: 100%;
+          flex: none;
+          margin-bottom: 20px;
         }
-        #loggedSection button {
-          display: block;
-          width: 100%;
-          margin-bottom: 10px;
+        #rightPanel {
+          flex-direction: column;
+        }
+        .tableContainer {
+          max-width: 100%;
+          margin-bottom: 20px;
+          flex: none;
         }
       }
     </style>
   </head>
   <body>
-    <h2>Logowanie</h2>
-    <label for="login">Login</label>
-    <input type="text" id="login" />
+    <div id="authSection">
+      <h2>Logowanie</h2>
+      <label for="login">Login</label>
+      <input type="text" id="login" />
 
-    <label for="password">Hasło</label>
-    <input type="password" id="password" />
+      <label for="password">Hasło</label>
+      <input type="password" id="password" />
 
-    <button id="loginBtn">Zaloguj</button>
+      <button id="loginBtn">Zaloguj</button>
 
-    <div id="message"></div>
-    <div id="error"></div>
+      <div id="authMessage"></div>
+      <div id="authError"></div>
+    </div>
 
-    <div id="loggedSection" style="display: none">
-      <button id="getTasksBtn">Pobierz zadania (GET /api/tasks)</button>
+    <div id="leftPanel" class="hidden">
+      <p id="message">Zalogowano pomyślnie!</p>
       <button id="logoutBtn">Wyloguj</button>
+    </div>
 
-      <div id="tasks"></div>
-
-      <h3>Kursy walut (NBP)</h3>
-      <div id="exchangeRates">
+    <div id="rightPanel" class="hidden">
+      <div class="tableContainer" id="exchangeRates">
+        <h3>Kursy walut (NBP)</h3>
         <table>
           <thead>
             <tr>
@@ -177,38 +250,54 @@
           <tbody id="exchangeRatesBody"></tbody>
         </table>
       </div>
+
+      <div class="tableContainer" id="dogSection">
+        <h3>Obrazek pieska</h3>
+        <button id="getDogBtn">Pobierz obrazek pieska</button>
+        <img id="dogImage" alt="Obrazek pieska" />
+      </div>
     </div>
 
     <script>
       const loginInput = document.getElementById("login");
       const passwordInput = document.getElementById("password");
       const loginBtn = document.getElementById("loginBtn");
-      const messageDiv = document.getElementById("message");
-      const errorDiv = document.getElementById("error");
-      const loggedSection = document.getElementById("loggedSection");
+      const authMessage = document.getElementById("authMessage");
+      const authError = document.getElementById("authError");
+
+      const authSection = document.getElementById("authSection");
+      const leftPanel = document.getElementById("leftPanel");
+      const rightPanel = document.getElementById("rightPanel");
+
+      const message = document.getElementById("message");
       const logoutBtn = document.getElementById("logoutBtn");
-      const getTasksBtn = document.getElementById("getTasksBtn");
-      const tasksDiv = document.getElementById("tasks");
+
       const exchangeRatesBody = document.getElementById("exchangeRatesBody");
+      const getDogBtn = document.getElementById("getDogBtn");
+      const dogImage = document.getElementById("dogImage");
 
       function updateUIOnAuth() {
         const token = localStorage.getItem("token");
         if (token) {
-          loggedSection.style.display = "block";
-          loginBtn.style.display = "none";
-          loginInput.style.display = "none";
-          passwordInput.style.display = "none";
-          messageDiv.textContent = "Zalogowano pomyślnie!";
-          errorDiv.textContent = "";
-          fetchExchangeRates(token);
+          // Pokaż lewe i prawe panele
+          leftPanel.classList.remove("hidden");
+          rightPanel.classList.remove("hidden");
+          authSection.classList.add("hidden");
+
+          authMessage.textContent = "";
+          authError.textContent = "";
+          message.textContent = "Zalogowano pomyślnie!";
+          dogImage.style.display = "none";
+          fetchExchangeRates();
         } else {
-          loggedSection.style.display = "none";
-          loginBtn.style.display = "inline-block";
-          loginInput.style.display = "inline-block";
-          passwordInput.style.display = "inline-block";
-          messageDiv.textContent = "";
-          errorDiv.textContent = "";
-          tasksDiv.innerHTML = "";
+          leftPanel.classList.add("hidden");
+          rightPanel.classList.add("hidden");
+          authSection.classList.remove("hidden");
+
+          authMessage.textContent = "";
+          authError.textContent = "";
+          message.textContent = "";
+          dogImage.style.display = "none";
           exchangeRatesBody.innerHTML = "";
         }
       }
@@ -218,7 +307,7 @@
         const password = passwordInput.value;
 
         if (!login || !password) {
-          errorDiv.textContent = "Wprowadź login i hasło.";
+          authError.textContent = "Wprowadź login i hasło.";
           return;
         }
 
@@ -230,7 +319,7 @@
           });
 
           if (!res.ok) {
-            errorDiv.textContent = "Błąd logowania. Sprawdź dane.";
+            authError.textContent = "Błąd logowania. Sprawdź dane.";
             return;
           }
 
@@ -238,7 +327,7 @@
           localStorage.setItem("token", data.token);
           updateUIOnAuth();
         } catch (err) {
-          errorDiv.textContent = "Błąd połączenia z serwerem.";
+          authError.textContent = "Błąd połączenia z serwerem.";
         }
       });
 
@@ -247,74 +336,53 @@
         updateUIOnAuth();
       });
 
-      getTasksBtn.addEventListener("click", async () => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          errorDiv.textContent = "Musisz być zalogowany.";
-          return;
-        }
-
+      getDogBtn.addEventListener("click", async () => {
         try {
-          const res = await fetch("/api/tasks", {
-            headers: { Authorization: "Bearer " + token },
-          });
-
+          const res = await fetch("https://dog.ceo/api/breeds/image/random");
           if (!res.ok) {
-            errorDiv.textContent = "Błąd pobierania zadań.";
-            return;
+            throw new Error("Nie udało się pobrać obrazka pieska.");
           }
-
-          const tasks = await res.json();
-          if (tasks.length === 0) {
-            tasksDiv.innerHTML = "<p>Brak zadań do wyświetlenia.</p>";
-          } else {
-            tasksDiv.innerHTML =
-              "<ul>" +
-              tasks.map((t) => `<li>${t.name}</li>`).join("") +
-              "</ul>";
-          }
+          const data = await res.json();
+          dogImage.src = data.message;
+          dogImage.style.display = "block";
+          authError.textContent = "";
         } catch (err) {
-          errorDiv.textContent = "Błąd połączenia z serwerem.";
+          authError.textContent = "Błąd połączenia z serwerem (piesek).";
         }
       });
 
-      async function fetchExchangeRates(token) {
+      async function fetchExchangeRates() {
         try {
-          const res = await fetch("/ExchangeRates", {
-            headers: { Authorization: "Bearer " + token },
-          });
-
+          const res = await fetch(
+            "https://api.nbp.pl/api/exchangerates/tables/A?format=json"
+          );
           if (!res.ok) {
-            exchangeRatesBody.innerHTML =
-              '<tr><td colspan="3">Błąd pobierania kursów walut.</td></tr>';
-            return;
+            throw new Error("Nie udało się pobrać kursów.");
           }
+          const data = await res.json();
+          const rates = data[0].rates;
 
-          const rates = await res.json();
+          // Pokazujemy tylko 5 walut
+          const wantedCodes = ["USD", "EUR", "GBP", "JPY", "CZK"];
+          const filteredRates = rates.filter((r) =>
+            wantedCodes.includes(r.code)
+          );
 
-          if (rates.length === 0) {
-            exchangeRatesBody.innerHTML =
-              '<tr><td colspan="3">Brak danych o kursach.</td></tr>';
-            return;
-          }
-
-          exchangeRatesBody.innerHTML = rates
+          exchangeRatesBody.innerHTML = filteredRates
             .map(
-              (rate) => `
-        <tr>
-          <td>${rate.currency}</td>
-          <td>${rate.code}</td>
-          <td>${rate.mid.toFixed(4)}</td>
-        </tr>
-      `
+              (r) =>
+                `<tr><td>${r.currency}</td><td>${
+                  r.code
+                }</td><td>${r.mid.toFixed(4)}</td></tr>`
             )
             .join("");
-        } catch {
+        } catch (err) {
           exchangeRatesBody.innerHTML =
-            '<tr><td colspan="3">Błąd połączenia z serwerem.</td></tr>';
+            "<tr><td colspan='3'>Błąd pobierania kursów</td></tr>";
         }
       }
 
+      // Po załadowaniu strony sprawdzamy, czy już jesteśmy zalogowani
       updateUIOnAuth();
     </script>
   </body>

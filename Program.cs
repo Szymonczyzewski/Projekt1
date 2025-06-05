@@ -3,7 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Projekt;
 using Projekt.Auth;
-using Projekt.Middleware; // pamiętaj, żeby mieć ten namespace i folder Middleware
+using Projekt.Middleware;
+using Projekt.Services; // Dodane dla DogService
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Dodaj konfigurację Swagger z obsługą JWT Bearer
+// Konfiguracja Swagger z obsługą JWT Bearer
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Projekt API", Version = "v1" });
@@ -25,12 +26,12 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference 
+                Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
@@ -45,7 +46,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // JWT konfiguracja
-builder.Services.AddSingleton<AuthService>();
+builder.Services.AddSingleton<Projekt.Auth.AuthService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
@@ -75,10 +76,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Rejestracja serwisu NBP z bazowym adresem API
+// Rejestracja serwisów HTTP
 builder.Services.AddHttpClient<NbpService>(client =>
 {
     client.BaseAddress = new Uri("https://api.nbp.pl/api/");
+});
+
+builder.Services.AddHttpClient<DogService>(client =>
+{
+    client.BaseAddress = new Uri("https://dog.ceo/api/");
 });
 
 var app = builder.Build();
@@ -89,7 +95,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// **Dodajemy globalny middleware obsługi błędów**
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
