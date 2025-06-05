@@ -25,9 +25,13 @@ namespace Projekt.Auth
                 throw new InvalidOperationException("Brakuje konfiguracji JWT w appsettings.json (Jwt:Key, Jwt:Issuer, Jwt:Audience)");
             }
 
+            // Przykład: jeśli username == admin, nadajemy rolę Admin, inaczej User
+            var role = username.ToLower() == "admin" ? "Admin" : "User";
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Role, role) // dodajemy rolę
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));

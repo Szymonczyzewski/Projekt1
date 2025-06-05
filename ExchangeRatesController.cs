@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Projekt; // Zawiera definicję NbpService i modelu ExchangeRate
+using Projekt;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Projekt.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Roles = "Admin")]  // tylko Admin może wywołać endpointy w tym kontrolerze
     public class ExchangeRatesController : ControllerBase
     {
         private readonly ILogger<ExchangeRatesController> _logger;
