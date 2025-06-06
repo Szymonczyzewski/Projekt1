@@ -2,17 +2,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Projekt;
-using Projekt.Auth;
 using Projekt.Middleware;
-using Projekt.Services; // Dodane dla DogService i innych
+using Projekt.Services;
 using System.Text;
+
+// Aliasy, aby uniknąć konfliktu nazw
+using AuthServiceFromAuth = Projekt.Auth.AuthService;
+using AuthServiceFromServices = Projekt.Services.AuthService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Konfiguracja Swagger z obsługą JWT Bearer
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Projekt API", Version = "v1" });
@@ -45,8 +47,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// JWT konfiguracja
-builder.Services.AddSingleton<Projekt.Auth.AuthService>();
+// Rejestrujemy tę wersję AuthService, którą chcesz używać:
+builder.Services.AddSingleton<AuthServiceFromAuth>();
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
@@ -76,7 +78,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Rejestracja serwisów HTTP
 builder.Services.AddHttpClient<NbpService>(client =>
 {
     client.BaseAddress = new Uri("https://api.nbp.pl/api/");
@@ -87,8 +88,7 @@ builder.Services.AddHttpClient<DogService>(client =>
     client.BaseAddress = new Uri("https://dog.ceo/api/");
 });
 
-// **DODANE: Rejestracja JsonPlaceholderService i HttpClient**
-builder.Services.AddHttpClient<Projekt.Services.IJsonPlaceholderService, Projekt.Services.JsonPlaceholderService>();
+builder.Services.AddHttpClient<IJsonPlaceholderService, JsonPlaceholderService>();
 
 var app = builder.Build();
 

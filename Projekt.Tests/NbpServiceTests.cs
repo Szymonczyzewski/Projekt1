@@ -1,28 +1,31 @@
-using NUnit.Framework; // This is crucial for NUnit attributes and assertions
+using NUnit.Framework;
 using Projekt;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-[TestFixture] // NUnit attribute for a test class
+[TestFixture]
 public class NbpServiceTests
 {
-    private NbpService _service;
+    private NbpService? _service;
 
     [SetUp]
     public void SetUp()
     {
         var httpClient = new HttpClient
         {
-            BaseAddress = new Uri("http://api.nbp.pl/api/")
+            BaseAddress = new Uri("https://api.nbp.pl/api/") // poprawny adres z https
         };
         _service = new NbpService(httpClient);
     }
-    [Test] // NUnit attribute for a test method
+
+    [Test]
     public async Task GetExchangeRate_ReturnsPositiveValue()
     {
-        var rate = await _service.GetExchangeRate("USD");
+        Assert.That(_service, Is.Not.Null);
 
-        // NUnit assertion style
+        var rate = await _service!.GetExchangeRate("USD");
+
         Assert.That(rate, Is.GreaterThan(0), "Kurs powinien być większy od zera");
     }
 }
