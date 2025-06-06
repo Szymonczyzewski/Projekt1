@@ -1,17 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Ustawienia projektu testowego -->
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework> <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Celujemy w .NET 9.0 -->
+    <TargetFramework>net9.0</TargetFramework>
+
+    <!-- Automatyczne dodawanie dyrektyw using (np. System) -->
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Włączamy obsługę nullable reference types dla bezpieczeństwa -->
     <Nullable>enable</Nullable>
 
+    <!-- Projekt nie jest przeznaczony do pakowania (np. NuGet) -->
     <IsPackable>false</IsPackable>
+
+    <!-- Określamy, że to projekt testowy -->
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="4.1.0" /> <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" /> <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" /> <PackageReference Include="Projekt" Version="1.0.0" /> </ItemGroup>
+    <!-- Odwołania do pakietów NuGet potrzebnych do testów -->
+
+    <!-- NUnit: framework do testów jednostkowych -->
+    <PackageReference Include="NUnit" Version="4.1.0" />
+
+    <!-- Adapter integrujący NUnit z Visual Studio Test Explorer -->
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+
+    <!-- Podstawowy SDK do uruchamiania testów w .NET -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+
+    <!-- Referencja do głównego projektu 'Projekt' (wersja 1.0.0) -->
+    <PackageReference Include="Projekt" Version="1.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Projekt\Projekt.csproj" /> </ItemGroup>
+    <!-- Odwołanie do projektu głównego (referencja do pliku csproj) -->
+    <ProjectReference Include="..\Projekt\Projekt.csproj" />
+  </ItemGroup>
 
 </Project>
