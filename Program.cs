@@ -102,8 +102,11 @@ builder.Services.AddHttpClient<DogService>(client =>
     client.BaseAddress = new Uri("https://dog.ceo/api/");
 });
 
-// Rejestracja HttpClient dla JsonPlaceholderService (implementującego IJsonPlaceholderService)
-builder.Services.AddHttpClient<IJsonPlaceholderService, JsonPlaceholderService>();
+// **Tu jest poprawiona rejestracja JsonPlaceholderService z BaseAddress**
+builder.Services.AddHttpClient<IJsonPlaceholderService, JsonPlaceholderService>(client =>
+{
+    client.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
+});
 
 var app = builder.Build();
 
